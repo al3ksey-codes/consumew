@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Personal Node Network{% endblock %}
+
+{% block content %}
+<h2>Configuration</h2>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<form method="post">
+    <label>OpenAI API Key:</label>
+    <input type="text" name="openai_api_key" value="{{ config.OPENAI_API_KEY }}"><br>
+
+    <label>OpenAI Prompt:</label>
+    <textarea name="openai_prompt">{{ config.OPENAI_PROMPT }}</textarea><br>
+
+    <label>Data Generation Method:</label>
+    <select name="data_generation_method">
+        <option value="openai" {% if config.DATA_GENERATION_METHOD=='openai' %}selected{% endif %}>OpenAI</option>
+        <option value="random" {% if config.DATA_GENERATION_METHOD=='random' %}selected{% endif %}>Random String</option>
+    </select><br>
+
+    <label>Random String Length:</label>
+    <input type="number" name="random_string_length" value="{{ config.RANDOM_STRING_LENGTH }}"><br>
+
+    <label>Random String Case:</label>
+    <select name="random_string_case">
+        <option value="uppercase" {% if config.RANDOM_STRING_CASE=='uppercase' %}selected{% endif %}>Uppercase</option>
+        <option value="lowercase" {% if config.RANDOM_STRING_CASE=='lowercase' %}selected{% endif %}>Lowercase</option>
+        <option value="camel" {% if config.RANDOM_STRING_CASE=='camel' %}selected{% endif %}>Camel Case</option>
+    </select><br>
+
+    <label>Dispatch Interval (minutes):</label>
+    <input type="number" name="dispatch_interval" value="{{ config.DISPATCH_INTERVAL }}"><br>
+
+    <label>Dispatch Amount:</label>
+    <input type="number" name="dispatch_amount" value="{{ config.DISPATCH_AMOUNT }}"><br>
+
+    <label>Ping Interval (minutes):</label>
+    <input type="number" name="ping_interval" value="{{ config.PING_INTERVAL }}"><br>
+
+    <label>Node Name:</label>
+    <input type="text" name="node_name" value="{{ config.NODE_NAME }}"><br>
+
+    <label>Other Node Addresses (comma separated):</label>
+    <input type="text" name="node_addresses" value="{{ config.NODE_ADDRESSES|join(', ') }}"><br>
+
+    <input type="submit" value="Update Configuration">
+</form>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Personal Node Network{% endblock %}
+
+{% block head %}
+<meta http-equiv="refresh" content="30">
+{% endblock %}
+
+{% block content %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message">
+        <div class="sender">{{ message.sender }}</div>
+        <div class="timestamp">{{ message.timestamp }}</div>
+        <div class="text">{{ message.message }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
