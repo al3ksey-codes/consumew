@@ -1,7 +1,13 @@
 import json
 import os
 
-CONFIG_FILE = 'config.json'
+# When running on Vercel, the root directory is read-only.
+# We check if the VERCEL environment variable is present (Vercel sets VERCEL=true)
+# and use /tmp for writes. Otherwise, we use config.json in the current directory.
+if os.environ.get("VERCEL"):
+    CONFIG_FILE = "/tmp/config.json"
+else:
+    CONFIG_FILE = "config.json"
 
 # Default configuration values.
 CONFIG = {
@@ -20,16 +26,33 @@ CONFIG = {
 }
 
 def load_config():
+    """
+    Load the configuration from CONFIG_FILE if it exists.
+    On Vercel, this file will be in /tmp and is ephemeral.
+    """
     global CONFIG
     if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as f:
-            CONFIG = json.load(f)
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                CONFIG = json.load(f)
+        except Exception as e:
+            print(f"Failed to load config from {CONFIG_FILE}: {e}")
 
 def save_config():
-    with open(CONFIG_FILE, 'w') as f:
-        json.dump(CONFIG, f, indent=4)
+    """
+    Save the current configuration to CONFIG_FILE.
+    On Vercel, writes to /tmp are allowed.
+    """
+    try:
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(CONFIG, f, indent=4)
+    except Exception as e:
+        print(f"Failed to save config to {CONFIG_FILE}: {e}")
 
 def update_config(new_config):
+    """
+    Update the in-memory configuration with new values and write them to disk.
+    """
     global CONFIG
     CONFIG.update(new_config)
     save_config()
