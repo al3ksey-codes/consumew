@@ -75,9 +75,21 @@ def purge_old_messages():
     cur.close()
     conn.close()
 
+def count_messages():
+    """
+    Returns the number of messages in the messages table.
+    """
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM messages")
+    count = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return count
+
 def clear_messages():
     """
-    Clears all messages from the messages table.
+    Clears all messages from the messages table and returns the number of deleted rows.
     """
     conn = get_db_connection()
     cur = conn.cursor()
