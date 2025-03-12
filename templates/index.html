@@ -1,61 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}{{ node_name }} - Randiostantsiya{% endblock %}
+{% block title %}{{ node_name }} - Personal Node Network{% endblock %}
 
 {% block head %}
-<!-- No meta refresh, using AJAX polling instead -->
 <script>
-// Helper function to format timestamps in JavaScript
-function formatTimestamp(ts) {
-    // Insert a space before the "T" and append ", UTC+1"
-    return ts.replace("T", " T ") + ", UTC+1";
-}
-
-async function fetchMessages() {
-    try {
-        const response = await fetch('/messages_json');
-        if (response.ok) {
-            const messages = await response.json();
-            let container = document.getElementById('messages');
-            let html = '';
-            messages.forEach(function(message) {
-                let messageClass = (message.sender === "{{ node_name }}") ? "sent" : "received";
-                html += '<div class="message ' + messageClass + '">';
-                html += '<div class="sender">' + message.sender + '</div>';
-                // Format timestamp via JS helper (if desired, you can also pre-format on the server)
-                html += '<div class="timestamp">' + formatTimestamp(message.timestamp) + '</div>';
-                html += '<div class="text">' + message.message + '</div>';
-                html += '</div>';
-            });
-            container.innerHTML = html;
-        }
-    } catch (error) {
-        console.error('Error fetching messages:', error);
+    // Configuration variables passed from the backend
+    var fancySender = {{ 'true' if fancy_sender else 'false' }};
+    var currentNode = "{{ node_name }}";
+    var nodeAddresses = "{{ node_addresses|join(', ') }}";
+    
+    function formatTimestamp(ts) {
+        return ts.replace("T", " T ") + ", UTC+1";
     }
-}
-
-// Poll for new messages every 5 seconds
-setInterval(fetchMessages, 60000);
-window.addEventListener('load', fetchMessages);
+    
+    async function fetchMessages() {
+        try {
+            const response = await fetch('/messages_json');
+            if (response.ok) {
+                const messages = await response.json();
+                let container = document.getElementById('messages');
+                let html = '';
+                messages.forEach(function(message) {
+                    // Determine the sender display based on fancySender setting.
+                    let senderDisplay = message.sender;
+                    if (fancySender) {
+                        if (message.sender === currentNode) {
+                            senderDisplay = "Me to " + nodeAddresses;
+                        } else {
+                            senderDisplay = nodeAddresses + " to Me";
+                        }
+                    }
+                    // Determine CSS class for message based on whether it's sent or received.
+                    let messageClass = (message.sender === currentNode) ? "sent" : "received";
+                    html += '<div class="message ' + messageClass + '">';
+                    html += '<div class="sender">' + senderDisplay + '</div>';
+                    html += '<div class="timestamp">' + formatTimestamp(message.timestamp) + '</div>';
+                    html += '<div class="text">' + message.message + '</div>';
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    }
+    
+    // Poll for new messages every 5 seconds.
+    setInterval(fetchMessages, 5000);
+    window.addEventListener('load', fetchMessages);
 </script>
 {% endblock %}
 
 {% block content %}
 <div id="messages">
     {% for message in messages %}
-        {% if message.sender == node_name %}
-            <div class="message sent">
-                <div class="sender">{{ message.sender }}</div>
-                <div class="timestamp">{{ message.timestamp|format_timestamp }}</div>
-                <div class="text">{{ message.message }}</div>
-            </div>
+        {% set is_sent = (message.sender == node_name) %}
+        {% if fancy_sender %}
+            {% if is_sent %}
+                {% set sender_display = "Me to " ~ node_addresses|join(', ') %}
+            {% else %}
+                {% set sender_display = node_addresses|join(', ') ~ " to Me" %}
+            {% endif %}
         {% else %}
-            <div class="message received">
-                <div class="sender">{{ message.sender }}</div>
-                <div class="timestamp">{{ message.timestamp|format_timestamp }}</div>
-                <div class="text">{{ message.message }}</div>
-            </div>
+            {% set sender_display = message.sender %}
         {% endif %}
+        <div class="message {% if is_sent %}sent{% else %}received{% endif %}">
+            <div class="sender">{{ sender_display }}</div>
+            <div class="timestamp">{{ message.timestamp|format_timestamp }}</div>
+            <div class="text">{{ message.message }}</div>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}
