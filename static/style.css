@@ -16,7 +16,7 @@ main {
     padding: 1em;
 }
 
-.messages {
+#messages {
     margin: 20px;
 }
 
@@ -25,13 +25,23 @@ main {
     padding: 10px;
 }
 
-.sender {
+.message .sender {
     font-weight: bold;
 }
 
-.timestamp {
+.message .timestamp {
     font-size: 0.8em;
     color: #aaa;
+}
+
+/* Color for messages sent by the current node */
+.message.sent .sender {
+    color: #6f42f5;
+}
+
+/* Color for messages received from other nodes */
+.message.received .sender {
+    color: #116613;
 }
 
 .flash {
