@@ -35,7 +35,7 @@ async function fetchMessages() {
 }
 
 // Poll for new messages every 5 seconds
-setInterval(fetchMessages, 5000);
+setInterval(fetchMessages, 60000);
 window.addEventListener('load', fetchMessages);
 </script>
 {% endblock %}
