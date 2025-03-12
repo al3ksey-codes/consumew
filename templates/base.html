@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Randiostantsiya obychnogo dnya{% endblock %}</title>
+    <title>{{ node_name if node_name is defined else "Randiostantsiya novogo dna" }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
     <header>
-        <h1>Personal Node Network</h1>
+        <h1>{{ node_name if node_name is defined else "Randiostantsiya novogo dna" }}</h1>
     </header>
     <main>
         {% block content %}{% endblock %}
