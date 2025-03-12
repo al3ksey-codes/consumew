@@ -5,22 +5,42 @@ import psycopg2.extras
 # Storage limit in bytes (10 MB)
 STORAGE_LIMIT = 10 * 1024 * 1024
 
+
 def get_db_connection():
     """
     Returns a new PostgreSQL database connection using credentials from environment variables.
+    Make sure the following environment variables are set:
+      - DB_HOST: hostname of your PostgreSQL server (should not be 'localhost' on Vercel)
+      - DB_NAME: database name
+      - DB_USER: database user
+      - DB_PASSWORD: database user's password
+      - DB_PORT: database port (optional, defaults to 5432)
     """
+    DB_HOST = os.getenv("POSTGRES_HOST")
+    DB_NAME = os.getenv("PGDATABASE")
+    DB_USER = os.getenv("PGUSER")
+    DB_PASSWORD = os.getenv("PGPASSWORD")
+    DB_PORT = 5432
+
+    # Check if required variables are provided.
+    if not DB_HOST or not DB_NAME or not DB_USER or not DB_PASSWORD:
+        raise Exception("Missing one or more PostgreSQL connection environment variables: "
+                        "DB_HOST, DB_NAME, DB_USER, DB_PASSWORD.")
+
+    # Connect to PostgreSQL using psycopg2.
     conn = psycopg2.connect(
-        dbname=os.getenv("DB_NAME", "your_db_name"),
-        user=os.getenv("DB_USER", "your_db_user"),
-        password=os.getenv("DB_PASSWORD", "your_db_password"),
-        host=os.getenv("DB_HOST", "localhost"),
-        port=os.getenv("DB_PORT", 5432)
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT
     )
     return conn
 
+
 def init_db():
     """
-    Creates the 'messages' table if it doesn't exist.
+    Creates the 'messages' table in the PostgreSQL database if it doesn't exist.
     """
     conn = get_db_connection()
     cur = conn.cursor()
@@ -36,6 +56,7 @@ def init_db():
     cur.close()
     conn.close()
 
+
 def add_message(sender, timestamp, message):
     """
     Inserts a new message record into the 'messages' table.
@@ -50,10 +71,11 @@ def add_message(sender, timestamp, message):
     cur.close()
     conn.close()
 
+
 def get_messages():
     """
     Retrieves all messages in ascending order by id.
-    Uses a DictCursor to allow dictionary-like access to rows.
+    Uses a DictCursor for dictionary-like row access.
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -62,6 +84,7 @@ def get_messages():
     cur.close()
     conn.close()
     return rows
+
 
 def purge_old_messages():
     """
