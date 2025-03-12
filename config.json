@@ -30,8 +30,8 @@
     "DISPATCH_INTERVAL": 1,
     "DISPATCH_AMOUNT": 1,
     "PING_INTERVAL": 10,
-    "NODE_NAME": "issaMe",
+    "NODE_NAME": "vercelNode_01",
     "NODE_ADDRESSES": [
-        "google.com"
+        "consumew.vercel.app"
     ]
 }
