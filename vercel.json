@@ -12,12 +12,14 @@
             "dest": "app.py"
         }
     ],
-    "functions": {
-        "api/dispatch_messages.py": {
-            "cron": "*/1 * * * *"
-        },
-        "api/ping_nodes.py": {
-            "cron": "*/5 * * * *"
-        }
+    "crons": [
+    {
+      "path": "/api/dispatch_messages",
+      "schedule": "*/1 * * * *"
+    },
+    {
+      "path": "/api/ping_nodes",
+      "schedule": "*/5 * * * *"
     }
+  ]
 }
